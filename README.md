@@ -9,12 +9,12 @@ internal **demo and training tool**.
 > text wordmark and a generic corporate blue palette — no UOB logo, trademark, or branding,
 > and it does not reproduce or connect to any real UOB system. All task data is invented.
 
-![The board on desktop — four columns with live count badges, colour-coded priority borders and overdue badges](docs/board-desktop.png)
+![The board on desktop: a dark status bar showing 8 tasks, 3 backlog, 2 in progress, 2 blocked, 1 done and 2 overdue highlighted in red, above four columns of task cards each carrying a P1-P4 severity code and a colour-coded spine](docs/board-desktop.png)
 
 <details>
 <summary>On a phone (390px) — columns stack</summary>
 
-![The same board at 390px wide, with the four columns stacked vertically](docs/board-mobile.png)
+![The same board at 390px wide: the status figures wrap into a grid and the four columns stack vertically](docs/board-mobile.png)
 
 </details>
 
@@ -36,9 +36,10 @@ The live link above serves the same file over HTTPS.
 - **Keyboard equivalent** — every card carries a `Move ▸` control, so the board is fully
   operable without a mouse. Drag-and-drop is mouse-only, so this is the accessible path,
   not a convenience.
-- **Cards** show task ID, title, project, assignee, priority, due date and category. The
-  left border is colour-coded by priority and the pill repeats it in words, so colour is
-  never the only signal. Overdue tasks (due date passed, not yet Done) get a badge.
+- **Cards** show a severity code (P1-P4), task ID, title, project, owner, due date and
+  category. Priority reads three ways — the spine colour, the code, and the written word —
+  so colour is never the only signal. Overdue tasks (due date passed, not yet Done) are
+  flagged. Finished work is deliberately muted: a closed task should not signal risk.
 - **Add Task** modal with inline validation — no `alert()`, no `confirm()`. Deleting a card
   uses an inline `Delete? Yes / No` row inside the card itself.
 - **Filters** by project, assignee (case-insensitive contains) and priority, plus a live
