@@ -30,19 +30,19 @@ The live link above serves the same file over HTTPS.
 ## What it does
 
 - **Four columns** — Backlog, In Progress, Blocked, Done — side by side on desktop, stacked
-  below 768px, each with a live count badge.
+  below 768px, each with a live count.
 - **Drag and drop** cards between columns using the native HTML5 API, with a drop-target
   highlight on the column you are over.
-- **Keyboard equivalent** — every card carries a `Move ▸` control, so the board is fully
+- **Keyboard equivalent** — every card carries a `Move` control, so the board is fully
   operable without a mouse. Drag-and-drop is mouse-only, so this is the accessible path,
   not a convenience.
 - **Cards** show a severity code (P1-P4), task ID, title, project, owner, due date and
   category. Priority reads three ways — the spine colour, the code, and the written word —
   so colour is never the only signal. Overdue tasks (due date passed, not yet Done) are
   flagged. Finished work is deliberately muted: a closed task should not signal risk.
-- **Add Task** modal with inline validation — no `alert()`, no `confirm()`. Deleting a card
+- **Add task** modal with inline validation — no `alert()`, no `confirm()`. Deleting a card
   uses an inline `Delete? Yes / No` row inside the card itself.
-- **Filters** by project, assignee (case-insensitive contains) and priority, plus a live
+- **Filters** by project, owner (case-insensitive contains) and priority, plus a live
   summary strip showing totals per status and the overdue count.
 - **Email notification** on new tasks via FormSubmit, sent as a background AJAX call so the
   page never navigates away.
