@@ -5,3 +5,7 @@
 .diag.html
 .e2e*.html
 .frame.html
+
+# Node artifacts (this project has no npm dependencies; guard against strays)
+node_modules/
+package-lock.json
