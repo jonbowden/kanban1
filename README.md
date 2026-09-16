@@ -54,6 +54,9 @@ The live link above serves the same file over HTTPS.
 - **IT Support widget** — a floating button, bottom right, opening a panel that links to the
   service desk on WhatsApp with a prefilled message. Keyboard operable: Escape closes it and
   focus returns to the button.
+- **Welcome dialog** — after ten seconds on the page, a one-time dialog points first-time
+  visitors at the support widget. It will not interrupt someone with the add-task form open,
+  and it never appears for anyone who already opened the support panel themselves.
 
 ## What the chart does not show
 
@@ -82,7 +85,12 @@ Two constants sit at the top of the script.
 ```js
 const SUPPORT_WHATSAPP = "6591397490";      // digits only, country code first
 const SUPPORT_DISPLAY  = "+65 9139 7490";   // how it is shown on screen
+const SUPPORT_SLA      = "The team replies within 1-3 business days.";
+const WELCOME_DELAY_MS = 10000;             // 0 switches the welcome dialog off
 ```
+
+`SUPPORT_SLA` is written once and used in both the support panel and the welcome dialog, so
+the two cannot drift apart and promise different response times.
 
 Set `SUPPORT_WHATSAPP` to `""` to remove the widget entirely. This repository is public, so
 whatever number sits there is readable by anyone and harvestable by scrapers — prefer a

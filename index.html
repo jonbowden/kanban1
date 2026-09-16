@@ -386,6 +386,29 @@ dialog::backdrop { background: rgba(54, 9, 16, .62); }
 /* ===========================================================================
    10. RESPONSIVE
    =========================================================================== */
+
+/* --- welcome dialog ------------------------------------------------------- */
+#welcome-dialog { border-top-color: #1f9d55; width: min(430px, 92vw); }
+
+.welcome { padding: var(--space-5); text-align: left; }
+.welcome-mark {
+  display: grid; place-items: center;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: #e4f4ea;
+  color: #1f9d55;
+  margin-bottom: var(--space-4);
+}
+.welcome h2 { font-size: 19px; margin-bottom: var(--space-2); }
+.welcome-body { margin: 0 0 var(--space-5); font-size: 14px; line-height: 1.55; color: var(--quiet); max-width: 44ch; }
+.welcome-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.btn-whatsapp {
+  background: #1f9d55; border-color: #1f9d55; color: #fff;
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.btn-whatsapp:hover { background: #178647; border-color: #178647; }
+
 @media (max-width: 768px) {
   .app-header, .chart-panel { padding: var(--space-4); }
   .board { grid-template-columns: 1fr; padding: var(--space-4); }
@@ -688,7 +711,7 @@ dialog::backdrop { background: rgba(54, 9, 16, .62); }
       </span>
       <span class="support-head-text">
         <strong id="support-title">IT Support</strong>
-        <span>Typically replies during office hours</span>
+        <span id="support-sla"></span>
       </span>
       <button type="button" class="icon-btn support-close" id="support-close"
               aria-label="Close the IT Support panel">&times;</button>
@@ -718,6 +741,28 @@ dialog::backdrop { background: rgba(54, 9, 16, .62); }
   </button>
 </div>
 
+<!-- ==========================================================================
+     WELCOME DIALOG — shown once, after the visitor has been on the page for
+     WELCOME_DELAY_MS. Points at the support widget rather than duplicating it.
+     ========================================================================== -->
+<dialog id="welcome-dialog" aria-labelledby="welcome-title">
+  <div class="welcome">
+    <span class="welcome-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.41a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.23 8.23Z"/>
+      </svg>
+    </span>
+    <h2 id="welcome-title">Welcome to UOB IT Support</h2>
+    <p class="welcome-body" id="welcome-body"></p>
+    <div class="welcome-actions">
+      <a class="btn btn-whatsapp" id="welcome-cta" href="#" target="_blank" rel="noopener noreferrer">
+        Ask on WhatsApp
+      </a>
+      <button type="button" class="btn" id="welcome-dismiss">Not now</button>
+    </div>
+  </div>
+</dialog>
+
 <!-- Transient notifications -->
 <div class="toasts" id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
 
@@ -746,6 +791,11 @@ const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/YOUR_EMAIL@example.com";
 const SUPPORT_WHATSAPP = "6591397490";
 const SUPPORT_DISPLAY  = "+65 9139 7490";
 const SUPPORT_GREETING = "Hi IT Support, I need help with the IT PMO board.";
+const SUPPORT_SLA      = "The team replies within 1-3 business days.";
+
+/* How long a visitor stays before the welcome dialog appears. Set
+   WELCOME_DELAY_MS to 0 to switch the dialog off entirely. */
+const WELCOME_DELAY_MS = 10000;
 
 const STATUSES = ["Backlog", "In Progress", "Blocked", "Done"];
 
@@ -1548,6 +1598,7 @@ function toggleSupport(open) {
 
   panel.hidden = !show;
   fab.setAttribute("aria-expanded", String(show));
+  if (show) welcomeSettled = true;   // they found support on their own
   if (show) document.getElementById("support-cta").focus();
   else fab.focus();
 }
@@ -1561,6 +1612,7 @@ function initSupport() {
 
   document.getElementById("support-cta").href = buildWhatsAppLink();
   document.getElementById("support-number").textContent = "WhatsApp " + SUPPORT_DISPLAY;
+  document.getElementById("support-sla").textContent = SUPPORT_SLA;
 
   document.getElementById("support-fab").addEventListener("click", function () { toggleSupport(); });
   document.getElementById("support-close").addEventListener("click", function () { toggleSupport(false); });
@@ -1577,10 +1629,57 @@ function initSupport() {
   });
 }
 
+
+/* ===========================================================================
+   15. WELCOME DIALOG
+   Appears once, after the visitor has been on the page a while. It points at
+   the support widget rather than repeating it, and it never interrupts
+   someone who is mid-task or who has already found support on their own.
+   =========================================================================== */
+let welcomeSettled = false;
+
+function showWelcome() {
+  if (welcomeSettled) return;
+
+  // Someone filling in the add-task form is busy. Come back shortly rather
+  // than stacking a second dialog on top of their work.
+  if (document.getElementById("add-task-dialog").open) {
+    window.setTimeout(showWelcome, 5000);
+    return;
+  }
+
+  welcomeSettled = true;
+  document.getElementById("welcome-dialog").showModal();
+}
+
+function dismissWelcome() {
+  const dialog = document.getElementById("welcome-dialog");
+  if (dialog.open) dialog.close();
+  document.getElementById("support-fab").focus();
+}
+
+function initWelcome() {
+  // No support number, or the delay switched off, means no dialog at all.
+  if (!SUPPORT_WHATSAPP || !WELCOME_DELAY_MS) return;
+
+  document.getElementById("welcome-body").textContent =
+    "Questions about this board, an access request or an incident? Send them to the " +
+    "service desk on WhatsApp and " + SUPPORT_SLA.charAt(0).toLowerCase() + SUPPORT_SLA.slice(1);
+  document.getElementById("welcome-cta").href = buildWhatsAppLink();
+
+  document.getElementById("welcome-dismiss").addEventListener("click", dismissWelcome);
+  document.getElementById("welcome-cta").addEventListener("click", function () {
+    document.getElementById("welcome-dialog").close();
+  });
+
+  window.setTimeout(showWelcome, WELCOME_DELAY_MS);
+}
+
 function init() {
   initSelects();
   initListeners();
   initSupport();
+  initWelcome();
   seedTasks();
   resetForm();
   renderBoard();
