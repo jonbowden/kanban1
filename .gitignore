@@ -1,0 +1,7 @@
+# Temp artifacts from headless-Chrome verification (see CLAUDE.md > Testing).
+# These are written into the project dir because Windows Chrome cannot read WSL /tmp.
+.shot-*.png
+.smoke-test.html
+.diag.html
+.e2e*.html
+.frame.html
