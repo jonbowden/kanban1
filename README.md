@@ -9,12 +9,12 @@ internal **demo and training tool**.
 > text wordmark and a generic corporate blue palette — no UOB logo, trademark, or branding,
 > and it does not reproduce or connect to any real UOB system. All task data is invented.
 
-![The board on desktop: a deep red header, four large KPI figures (8 tasks, 7 open, 2 blocked, 2 overdue on a solid red tile), a "Work by project" bar chart across six workstreams, and four task columns below](docs/board-desktop.png)
+![The board on desktop: a deep red header, four large KPI figures (8 tasks, 7 open, 2 blocked, 2 overdue on a solid red tile), a "Work by project" bar chart across six workstreams, four task columns below, and the green IT Support panel open at bottom right showing the WhatsApp contact](docs/board-desktop.png)
 
 <details>
 <summary>On a phone (390px) — columns stack</summary>
 
-![The same board at 390px wide: KPIs reflow to a 2x2 grid, the project chart rows stack, and the four columns stack vertically](docs/board-mobile.png)
+![The same board at 390px wide: KPIs reflow to a 2x2 grid, the project chart rows stack, and the IT Support button collapses to a circular icon](docs/board-mobile.png)
 
 </details>
 
