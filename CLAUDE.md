@@ -154,3 +154,25 @@ a backend: today a failed notification *keeps* the card by design. With a real A
 write would need to roll back instead, and ID generation must move server-side so two users
 can't both mint `UOB-ITPM-0009`. `state` being the single source of truth means the rest of the
 change is small.
+
+## Security review
+
+`.claude/agents/security-reviewer.md` defines a project-level agent that reviews this
+codebase using the `cybersecurity-analyst` skill (STRIDE, CIA triad, assume-breach) and
+writes structured findings to `security-review.json` in the repo root.
+
+Run it with the Agent tool, `subagent_type: "security-reviewer"`. It needs a Claude Code
+restart after any change to the agent file, since `.claude/agents/` is read at startup.
+
+Two rules it enforces that matter when reading its output:
+
+- **It never reports an alert as delivered unless a request actually succeeded.** There is no
+  configured alert channel in this project — the FormSubmit endpoint is a placeholder address
+  that delivers nothing, and the `wa.me` link needs a human to click it. Set
+  `SECURITY_ALERT_WEBHOOK` in the environment to give it a real one.
+- **`security-review.json` is gitignored.** It is a list of unfixed weaknesses and this
+  repository is public, so committing it hands an attacker the map. Remove the ignore rule
+  only deliberately.
+
+It reviews code for vulnerabilities. Detecting a live breach would need runtime telemetry
+and request logs that a static page cannot produce.

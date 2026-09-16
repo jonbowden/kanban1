@@ -18,3 +18,7 @@ package-lock.json
 # Not vendored: 3.7MB of code from other people's repositories.
 .agents/
 .claude/skills/
+
+# Security review output. This is a list of unfixed weaknesses and the repo is
+# public, so it stays local by default. Remove this line only deliberately.
+security-review.json
