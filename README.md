@@ -51,6 +51,9 @@ The live link above serves the same file over HTTPS.
   summary strip showing totals per status and the overdue count.
 - **Email notification** on new tasks via FormSubmit, sent as a background AJAX call so the
   page never navigates away.
+- **IT Support widget** — a floating button, bottom right, opening a panel that links to the
+  service desk on WhatsApp with a prefilled message. Keyboard operable: Escape closes it and
+  focus returns to the button.
 
 ## What the chart does not show
 
@@ -72,7 +75,20 @@ If you add a card and reload, it is gone. Nothing is broken.
 
 ## Configuration
 
-One constant, at **`index.html:664`**:
+Two constants sit at the top of the script.
+
+**IT Support contact** — the WhatsApp widget:
+
+```js
+const SUPPORT_WHATSAPP = "6591397490";      // digits only, country code first
+const SUPPORT_DISPLAY  = "+65 9139 7490";   // how it is shown on screen
+```
+
+Set `SUPPORT_WHATSAPP` to `""` to remove the widget entirely. This repository is public, so
+whatever number sits there is readable by anyone and harvestable by scrapers — prefer a
+service-desk line over a personal mobile.
+
+**FormSubmit endpoint:**
 
 ```js
 const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/YOUR_EMAIL@example.com";
@@ -101,7 +117,8 @@ toolchain enforces them:
 - Vanilla HTML, CSS and JavaScript only — no framework, bundler, or npm.
 - Everything stays in `index.html`: one `<style>` block, one `<script>` block.
 - No external resources — no CDN, no web fonts, no image files. System font stack, inline
-  SVG or Unicode glyphs for icons. The FormSubmit endpoint is the only outbound URL.
+  SVG or Unicode glyphs for icons. Two outbound URLs exist, both navigation rather than
+  loaded resources: the FormSubmit endpoint and the `wa.me` support link.
 - No storage APIs, no `alert()`/`confirm()`, no `!important`.
 
 `CLAUDE.md` in this repository documents the internal architecture — the `state` object as

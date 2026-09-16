@@ -21,8 +21,10 @@ because nothing in the toolchain enforces them:
 - **Single file.** All markup, one `<style>` block, one `<script>` block, in `index.html`.
   It must run by double-clicking the file — never introduce anything that needs a server.
 - **Zero external resources.** No CDN scripts, no Google Fonts, no image files. System font
-  stack, inline SVG or Unicode glyphs for icons. The only outbound URL in the file is the
-  FormSubmit endpoint.
+  stack, inline SVG or Unicode glyphs for icons. Two outbound URLs exist and both are
+  *navigation*, never loaded resources: the FormSubmit endpoint, and the `wa.me` link behind
+  the IT Support widget. Nothing is fetched from either at page load, so the file still runs
+  offline from a double-click.
 - **No persistence of any kind.** No `localStorage`, `sessionStorage`, IndexedDB, or cookies.
   Board state is a plain array in memory; refreshing resets to seed data, which is intended
   behaviour that the header note explains to the user.
@@ -34,7 +36,7 @@ Before finishing any change, sweep for regressions:
 
 ```bash
 grep -nE 'localStorage|sessionStorage|indexedDB|document\.cookie|alert\(|confirm\(|!important' index.html
-grep -oE 'https?://[^"'"'"' )]+' index.html | sort -u   # should only ever print the FormSubmit URL
+grep -oE 'https?://[^"'"'"' )]+' index.html | sort -u   # expect only formsubmit.co and wa.me
 ```
 
 ## Architecture
