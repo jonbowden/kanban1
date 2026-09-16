@@ -12,3 +12,9 @@ package-lock.json
 
 # Playwright MCP session output (snapshots, traces, screenshots)
 .playwright-mcp/
+
+# Third-party skills installed via `npx skills add`. skills-lock.json pins each
+# to a content hash, so `npx skills experimental_install` restores them exactly.
+# Not vendored: 3.7MB of code from other people's repositories.
+.agents/
+.claude/skills/

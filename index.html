@@ -22,488 +22,386 @@
 
 <style>
 /* ===========================================================================
-   1. DESIGN TOKENS — palette + spacing scale (no !important anywhere)
+   1. TOKENS — red system.
+   Brand red and alert red are deliberately separated by value: the brand is
+   deep oxblood, the alert is bright. A theme built on red still has to leave
+   room for red to mean "wrong", which is the trap with a single-hue palette.
    =========================================================================== */
 :root {
-  /* Corporate blue palette */
-  --blue-900: #0b2545;
-  --blue-800: #123a6b;
-  --blue-700: #1b4f8f;
-  --blue-600: #2166b0;
-  --blue-100: #e3edf9;
-  --blue-050: #f2f7fd;
+  --brand-950: #360910;
+  --brand-900: #4f0d16;
+  --brand-800: #711421;
+  --brand-700: #931c2a;
+  --brand-600: #bf2233;   /* primary action */
+  --brand-500: #d93a48;
+  --brand-100: #f7dfe1;
+  --brand-050: #fdf3f4;
 
-  /* Neutrals */
-  --ink:        #1b2430;
-  --ink-soft:   #5a6675;
-  --ink-faint:  #8a94a2;
-  --line:       #d8dee7;
-  --line-soft:  #e8edf3;
-  --surface:    #ffffff;
-  --canvas:     #f4f6f9;
+  --alert:     #e8151f;   /* reserved: overdue / breach. Never used as chrome */
+  --alert-ink: #ff8a8f;   /* the same signal on a dark ground */
 
-  /* Priority colours (always paired with a text label — never colour alone) */
-  --prio-critical: #c62828;
-  --prio-high:     #e08a00;
-  --prio-medium:   var(--blue-600);
-  --prio-low:      #8a94a2;
+  --ink:      #2b1e20;
+  --quiet:    #6f5f61;
+  --quieter:  #9b8b8d;
+  --rule:     #e7dcdd;
+  --rule-soft:#f1e9ea;
+  --surface:  #ffffff;
+  --paper:    #f6f2f2;
 
-  /* Status / feedback */
-  --ok:    #1e7a44;
-  --ok-bg: #e6f4ec;
-  --warn:    #9a6100;
-  --warn-bg: #fdf3e0;
-  --err:     #c62828;
-  --err-bg:  #fdecec;
+  /* Status ramp: one hue family, light to deep, so the chart reads as a
+     single system. Every segment is also labelled, so colour is redundant. */
+  --st-backlog:  #cfc2c4;
+  --st-active:   #e0838c;
+  --st-blocked:  #bf2233;
+  --st-done:     #7d6e70;
 
-  /* Spacing scale */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+  --space-4: 16px; --space-5: 24px; --space-6: 36px;
 
-  --radius:   6px;
-  --radius-lg: 10px;
-  --shadow-1: 0 1px 2px rgba(11, 37, 69, .08), 0 1px 3px rgba(11, 37, 69, .06);
-  --shadow-2: 0 6px 24px rgba(11, 37, 69, .18);
+  --r-panel: 4px; --r-card: 3px; --r-control: 6px;
+
+  --lift-1: 0 1px 2px rgba(54, 9, 16, .06), 0 2px 6px rgba(54, 9, 16, .05);
+  --lift-2: 0 2px 6px rgba(54, 9, 16, .10), 0 10px 24px rgba(54, 9, 16, .12);
 
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
           Arial, "Noto Sans", sans-serif;
 }
 
-/* ===========================================================================
-   2. BASE / RESET
-   =========================================================================== */
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
   font-family: var(--font);
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--ink);
-  background: var(--canvas);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { margin: 0; font-weight: 600; }
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -.01em; }
+button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 
-button, input, select, textarea {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
+.num { font-variant-numeric: tabular-nums; }
 
-/* Visible focus ring on every interactive element */
-:focus-visible {
-  outline: 3px solid var(--blue-600);
-  outline-offset: 2px;
-  border-radius: 3px;
-}
+:focus-visible { outline: 2px solid var(--brand-600); outline-offset: 2px; border-radius: 2px; }
+.app-header :focus-visible, .kpi-strip :focus-visible { outline-color: #ffb3b8; }
 
 .visually-hidden {
-  position: absolute;
-  width: 1px; height: 1px;
-  margin: -1px; padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
 /* ===========================================================================
-   3. HEADER — wordmark, live summary strip, add-task action
+   2. HEADER
    =========================================================================== */
 .app-header {
-  background: var(--blue-900);
+  background:
+    radial-gradient(130% 150% at 85% -40%, rgba(217, 58, 72, .38) 0%, rgba(217, 58, 72, 0) 60%),
+    linear-gradient(165deg, var(--brand-800) 0%, var(--brand-900) 55%, var(--brand-950) 100%);
   color: #fff;
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-5) var(--space-5);
 }
 
-.header-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-}
+.header-top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.wordmark { display: flex; align-items: center; gap: var(--space-3); margin-right: auto; }
+.wordmark-glyph { display: grid; place-items: center; width: 26px; height: 26px; flex: none; color: #f2a8ad; }
+.wordmark-text { display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
+.wordmark-text strong { font-size: 17px; font-weight: 700; }
+.wordmark-text span { font-size: 13px; color: #e0b3b7; }
 
-.wordmark {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-right: auto;
-}
+.demo-note { margin: var(--space-4) 0 0; font-size: 12px; color: #d4a5a9; max-width: 80ch; }
 
-.wordmark-glyph {
+/* ===========================================================================
+   3. KPI STRIP — the hero. Figures are sized to be read across a room,
+   because "how much is late" is the question this board exists to answer.
+   =========================================================================== */
+.kpi-strip {
   display: grid;
-  place-items: center;
-  width: 34px; height: 34px;
-  border: 2px solid rgba(255, 255, 255, .55);
-  border-radius: var(--radius);
-  flex: none;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
-.wordmark-text { display: flex; flex-direction: column; }
-.wordmark-text strong { font-size: 16px; letter-spacing: .04em; }
-.wordmark-text span { font-size: 11px; color: rgba(255, 255, 255, .7); letter-spacing: .06em; text-transform: uppercase; }
-
-.btn {
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  padding: var(--space-2) var(--space-4);
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--line-soft);
-  color: var(--ink);
-}
-.btn:hover { background: var(--line); }
-
-.btn-primary { background: var(--blue-600); color: #fff; }
-.btn-primary:hover { background: var(--blue-700); }
-.btn-primary[disabled] { background: var(--blue-100); color: var(--ink-faint); cursor: progress; }
-
-.btn-ghost {
-  background: transparent;
-  border-color: rgba(255, 255, 255, .45);
-  color: #fff;
-}
-.btn-ghost:hover { background: rgba(255, 255, 255, .12); }
-
-/* Live summary strip */
-.summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
-}
-
-.summary-item {
-  background: rgba(255, 255, 255, .1);
-  border: 1px solid rgba(255, 255, 255, .16);
-  border-radius: var(--radius);
-  padding: var(--space-2) var(--space-3);
-  font-size: 12px;
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-}
-.summary-item b { font-size: 15px; }
-.summary-item.is-overdue { background: rgba(198, 40, 40, .28); border-color: rgba(255, 170, 170, .5); }
-
-.demo-note {
-  margin-top: var(--space-3);
-  font-size: 12px;
-  color: rgba(255, 255, 255, .72);
-}
-
-/* ===========================================================================
-   4. FILTER BAR
-   =========================================================================== */
-.filters {
+.kpi {
   background: var(--surface);
-  border-bottom: 1px solid var(--line);
-  padding: var(--space-3) var(--space-5);
-}
-
-.filters-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-4);
-}
-
-.field { display: flex; flex-direction: column; gap: var(--space-1); }
-.field > label { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
-
-.control {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: var(--space-2) var(--space-3);
-  background: var(--surface);
-  min-width: 180px;
-}
-.control:hover { border-color: var(--blue-600); }
-
-.filter-status { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
-
-/* ===========================================================================
-   5. BOARD + COLUMNS
-   =========================================================================== */
-.board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-4);
-  padding: var(--space-5);
-  align-items: start;
-}
-
-.column {
-  background: var(--blue-050);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  display: flex;
-  flex-direction: column;
-  min-height: 220px;
-}
-
-.column-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--line);
-}
-.column-header h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--blue-800); }
-
-.count-badge {
-  margin-left: auto;
-  background: var(--blue-800);
-  color: #fff;
-  border-radius: 999px;
-  min-width: 24px;
-  padding: 1px var(--space-2);
-  text-align: center;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.column-body {
-  padding: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  flex: 1;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
-/* Drop-target highlight while dragging a card over a column */
-.column.drop-target { border-color: var(--blue-600); }
-.column.drop-target .column-body {
-  background: var(--blue-100);
-  box-shadow: inset 0 0 0 2px var(--blue-600);
-}
-
-.column-empty {
-  color: var(--ink-faint);
-  font-size: 12px;
-  font-style: italic;
-  padding: var(--space-3);
-  text-align: center;
-}
-
-/* ===========================================================================
-   6. CARDS
-   =========================================================================== */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-left: 5px solid var(--prio-medium);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-1);
-  padding: var(--space-3);
-  cursor: grab;
-}
-.card:active { cursor: grabbing; }
-.card.dragging { opacity: .45; }
-
-/* Left border colour-codes priority (the pill below carries the text label) */
-.card.prio-critical { border-left-color: var(--prio-critical); }
-.card.prio-high     { border-left-color: var(--prio-high); }
-.card.prio-medium   { border-left-color: var(--prio-medium); }
-.card.prio-low      { border-left-color: var(--prio-low); }
-
-.card-top {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-
-.task-id {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .04em;
-  color: var(--blue-700);
-}
-
-.icon-btn {
-  margin-left: auto;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--ink-faint);
-  border-radius: var(--radius);
-  width: 24px; height: 24px;
-  line-height: 1;
-  font-size: 16px;
-  cursor: pointer;
-  flex: none;
-}
-.icon-btn:hover { background: var(--err-bg); color: var(--err); }
-
-.card-title { font-size: 14px; font-weight: 600; margin-bottom: var(--space-2); }
-
-.card-meta {
+  padding: var(--space-5) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 12px;
-  color: var(--ink-soft);
-  margin-bottom: var(--space-2);
-}
-.card-meta .meta-label { color: var(--ink-faint); }
-
-.tag-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-2); }
-
-.pill {
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 999px;
-  padding: 2px var(--space-2);
-  border: 1px solid transparent;
-  white-space: nowrap;
 }
 
-/* Priority pills carry the priority word — colour is never the only signal */
-.pill-critical { background: var(--err-bg);  color: var(--prio-critical); border-color: #f2c3c3; }
-.pill-high     { background: var(--warn-bg); color: var(--warn);          border-color: #f0d9ab; }
-.pill-medium   { background: var(--blue-100);color: var(--blue-800);      border-color: #c2d9f2; }
-.pill-low      { background: var(--line-soft); color: var(--ink-soft);    border-color: var(--line); }
-
-.pill-category { background: var(--surface); color: var(--ink-soft); border-color: var(--line); }
-
-.pill-overdue { background: var(--err-bg); color: var(--err); border-color: #f2c3c3; }
-
-.card-foot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  border-top: 1px solid var(--line-soft);
-  padding-top: var(--space-2);
-}
-.card-foot label { font-size: 11px; color: var(--ink-faint); }
-
-.move-select {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 2px var(--space-1);
-  font-size: 12px;
-  background: var(--surface);
-  max-width: 130px;
-}
-
-/* Inline delete confirmation (no native confirm() dialog) */
-.confirm-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--err-bg);
-  border: 1px solid #f2c3c3;
-  border-radius: var(--radius);
-  padding: var(--space-2);
-  margin-top: var(--space-2);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--err);
-}
-.confirm-row .btn { padding: 2px var(--space-3); font-size: 12px; }
-.btn-danger { background: var(--err); color: #fff; }
-.btn-danger:hover { background: #a91f1f; }
-
-/* ===========================================================================
-   7. MODAL (native <dialog>)
-   =========================================================================== */
-dialog {
-  border: none;
-  border-radius: var(--radius-lg);
-  padding: 0;
-  width: min(560px, 94vw);
-  box-shadow: var(--shadow-2);
+.kpi-figure {
+  font-size: 52px;
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: -.035em;
   color: var(--ink);
 }
-dialog::backdrop { background: rgba(11, 37, 69, .55); }
+.kpi-label { font-size: 12px; font-weight: 600; color: var(--quiet); }
+.kpi-sub   { font-size: 11px; color: var(--quieter); }
 
-.modal-header {
-  display: flex;
+.kpi-total .kpi-figure { color: var(--brand-800); }
+
+/* The one inverted tile. Overdue is the number that should make someone move. */
+.kpi-alert { background: var(--alert); }
+.kpi-alert .kpi-figure { color: #fff; }
+.kpi-alert .kpi-label  { color: #ffdcdd; }
+.kpi-alert .kpi-sub    { color: #ffc4c6; }
+.kpi-clear { background: var(--brand-050); }
+.kpi-clear .kpi-figure { color: var(--brand-700); }
+
+/* ===========================================================================
+   4. PROJECT CHART — distribution across workstreams, carrying schedule risk.
+   Each row is a button: clicking filters the board, so the chart is
+   navigation rather than decoration.
+   =========================================================================== */
+.chart-panel {
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  padding: var(--space-5);
+}
+
+.chart-head {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: var(--space-3); margin-bottom: var(--space-4);
+}
+.chart-head h2 { font-size: 14px; font-weight: 700; }
+.chart-meta { font-size: 11px; color: var(--quieter); margin-right: auto; }
+
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-3); font-size: 11px; color: var(--quiet); }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.chart-rows { display: grid; gap: var(--space-2); }
+
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 200px) 1fr auto;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--line);
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-control);
+  padding: var(--space-2);
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
 }
-.modal-header h2 { font-size: 16px; margin-right: auto; }
+.chart-row:hover { background: var(--brand-050); border-color: var(--brand-100); }
+.chart-row[aria-pressed="true"] { background: var(--brand-050); border-color: var(--brand-600); }
 
-.modal-body {
-  padding: var(--space-5);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-  max-height: 68vh;
-  overflow-y: auto;
+.chart-name { font-size: 12px; font-weight: 600; }
+.chart-track { display: flex; height: 22px; border-radius: 3px; overflow: hidden; background: var(--rule-soft); }
+.chart-seg { height: 100%; }
+.seg-backlog { background: var(--st-backlog); }
+.seg-active  { background: var(--st-active); }
+.seg-blocked { background: var(--st-blocked); }
+.seg-done    { background: var(--st-done); }
+
+.chart-figures { display: flex; align-items: center; gap: var(--space-3); font-size: 12px; }
+.chart-count { font-weight: 700; min-width: 16px; text-align: right; }
+.chart-risk {
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: var(--alert); border-radius: 999px; padding: 1px 8px;
 }
+.chart-risk-none { font-size: 11px; color: var(--quieter); }
+
+/* ===========================================================================
+   5. FILTERS — sticky, so the board stays filterable while scrolling
+   =========================================================================== */
+.filters {
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  padding: var(--space-3) var(--space-5);
+  position: sticky; top: 0; z-index: 5;
+  box-shadow: var(--lift-1);
+}
+.filters-inner { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-4); }
+.field { display: flex; flex-direction: column; gap: var(--space-1); }
+.field > label { font-size: 12px; font-weight: 600; color: var(--quiet); }
+
+.control {
+  border: 1px solid var(--rule); border-radius: var(--r-control);
+  padding: 7px var(--space-3); background: var(--surface);
+  min-width: 180px; color: var(--ink);
+}
+.control:hover { border-color: var(--brand-500); }
+.control::placeholder { color: var(--quieter); }
+.filter-status { margin: 0 0 6px auto; font-size: 12px; color: var(--quiet); }
+
+/* ===========================================================================
+   6. BOARD
+   =========================================================================== */
+.board {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4); padding: var(--space-5); align-items: start;
+}
+
+.column {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--r-panel); display: flex; flex-direction: column;
+  min-height: 200px; overflow: hidden; box-shadow: var(--lift-1);
+}
+
+.column-header {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--st-backlog); color: var(--ink);
+}
+.column-header h2 { font-size: 13px; font-weight: 700; }
+.column[data-status="In Progress"] .column-header { background: var(--st-active); color: #4a1016; }
+.column[data-status="Blocked"]     .column-header { background: var(--st-blocked); color: #fff; }
+.column[data-status="Done"]        .column-header { background: var(--st-done); color: #fff; }
+
+.count {
+  margin-left: auto; font-size: 13px; font-weight: 700;
+  background: rgba(0,0,0,.20); color: inherit;
+  border-radius: 999px; min-width: 24px; padding: 1px 8px; text-align: center;
+}
+.column[data-status="Blocked"] .count,
+.column[data-status="Done"] .count { background: rgba(0,0,0,.26); color: #fff; }
+
+.column-body {
+  padding: var(--space-3); display: flex; flex-direction: column;
+  gap: var(--space-3); flex: 1; background: var(--paper);
+}
+.column.drop-target { border-color: var(--brand-600); box-shadow: var(--lift-2); }
+.column.drop-target .column-body { background: var(--brand-100); }
+.column-empty { margin: 0; color: var(--quieter); font-size: 12px; padding: var(--space-4) var(--space-2); }
+
+/* ===========================================================================
+   7. CARDS
+   =========================================================================== */
+.card {
+  display: flex; background: var(--surface);
+  border: 1px solid rgba(54, 9, 16, .10); border-radius: var(--r-card);
+  box-shadow: var(--lift-1); cursor: grab;
+}
+.card:hover { box-shadow: var(--lift-2); }
+.card:active { cursor: grabbing; }
+.card.dragging { opacity: .4; }
+
+.card-spine { flex: none; width: 6px; background: var(--quieter); }
+.prio-critical .card-spine { background: var(--alert); }
+.prio-high     .card-spine { background: var(--brand-500); }
+.prio-medium   .card-spine { background: var(--st-active); }
+.prio-low      .card-spine { background: var(--st-backlog); }
+
+.card-body { flex: 1; min-width: 0; padding: var(--space-3); }
+.card-top { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+
+.sev {
+  flex: none; font-size: 11px; font-weight: 700; padding: 2px 6px;
+  border-radius: 3px; background: var(--quiet); color: #fff;
+}
+.prio-critical .sev { background: var(--alert); }
+.prio-high     .sev { background: var(--brand-600); }
+.prio-medium   .sev { background: #b05a62; }
+
+.task-id { font-size: 11px; color: var(--quieter); }
+.overdue-flag {
+  font-size: 11px; font-weight: 700; color: var(--alert);
+  border-bottom: 2px solid var(--alert); padding-bottom: 1px;
+}
+
+.icon-btn {
+  margin-left: auto; border: 1px solid transparent; background: transparent;
+  color: var(--quieter); border-radius: var(--r-control);
+  width: 22px; height: 22px; line-height: 1; font-size: 15px; cursor: pointer; flex: none; padding: 0;
+}
+.icon-btn:hover { background: var(--brand-100); color: var(--brand-700); }
+
+.card-title { font-size: 14px; font-weight: 600; line-height: 1.35; margin-bottom: var(--space-2); max-width: 46ch; }
+.card-meta { display: grid; gap: 1px; font-size: 12px; color: var(--quiet); margin-bottom: var(--space-3); }
+.card-meta .meta-label { color: var(--quieter); }
+.card-notes { margin-top: var(--space-1); line-height: 1.45; max-width: 56ch; }
+
+.tag-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-3); }
+.pill { font-size: 11px; font-weight: 600; border-radius: 3px; padding: 2px 6px; border: 1px solid transparent; white-space: nowrap; }
+.pill-critical { background: #fde8e9; color: #a8111a; }
+.pill-high     { background: var(--brand-100); color: var(--brand-800); }
+.pill-medium   { background: #f9ecee; color: #8d4149; }
+.pill-low      { background: var(--rule-soft); color: var(--quiet); }
+.pill-category { background: transparent; color: var(--quiet); border-color: var(--rule); }
+
+.card-foot { display: flex; align-items: center; gap: var(--space-2); border-top: 1px solid var(--rule-soft); padding-top: var(--space-2); }
+.card-foot label { font-size: 11px; color: var(--quieter); }
+.move-select {
+  border: 1px solid var(--rule); border-radius: var(--r-control);
+  padding: 2px var(--space-1); font-size: 12px; background: var(--surface); color: var(--ink); max-width: 132px;
+}
+
+.confirm-row {
+  display: flex; align-items: center; gap: var(--space-2);
+  border-top: 2px solid var(--alert); padding-top: var(--space-2);
+  font-size: 12px; color: var(--alert); font-weight: 600;
+}
+
+/* ===========================================================================
+   8. BUTTONS
+   =========================================================================== */
+.btn {
+  border: 1px solid var(--rule); border-radius: var(--r-control);
+  padding: 7px var(--space-4); font-weight: 600; cursor: pointer;
+  background: var(--surface); color: var(--ink);
+}
+.btn:hover { border-color: var(--brand-500); }
+.btn-primary { background: var(--brand-600); border-color: var(--brand-600); color: #fff; }
+.btn-primary:hover { background: var(--brand-700); border-color: var(--brand-700); }
+.btn-primary[disabled] { background: var(--quieter); border-color: var(--quieter); cursor: progress; }
+.btn-ghost { background: #fff; border-color: #fff; color: var(--brand-800); }
+.btn-ghost:hover { background: var(--brand-100); border-color: var(--brand-100); }
+.btn-danger { background: var(--alert); border-color: var(--alert); color: #fff; }
+.btn-danger:hover { background: #b8111a; border-color: #b8111a; }
+
+/* ===========================================================================
+   9. MODAL / TOASTS
+   =========================================================================== */
+dialog {
+  border: none; border-radius: var(--r-panel); padding: 0;
+  width: min(580px, 94vw); color: var(--ink); border-top: 3px solid var(--brand-600);
+}
+dialog::backdrop { background: rgba(54, 9, 16, .62); }
+.modal-header { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--rule); }
+.modal-header h2 { font-size: 16px; margin-right: auto; }
+.modal-body { padding: var(--space-5); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); max-height: 66vh; overflow-y: auto; }
 .modal-body .field { min-width: 0; }
 .modal-body .field.span-2 { grid-column: 1 / -1; }
 .modal-body .control { width: 100%; min-width: 0; }
-.modal-body textarea { resize: vertical; min-height: 76px; }
+.modal-body textarea { resize: vertical; min-height: 74px; line-height: 1.5; }
+.field-hint { margin: 0; font-size: 11px; color: var(--quieter); }
+.field-error { margin: 0; font-size: 12px; font-weight: 600; color: var(--alert); }
+.control[aria-invalid="true"] { border-color: var(--alert); background: #fdeced; }
+.modal-foot { display: flex; justify-content: flex-end; gap: var(--space-2); padding: var(--space-4) var(--space-5); border-top: 1px solid var(--rule); background: var(--brand-050); }
+.req { color: var(--alert); }
 
-.field-hint { font-size: 11px; color: var(--ink-faint); }
-
-.field-error {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--err);
-  min-height: 0;
-}
-.control[aria-invalid="true"] { border-color: var(--err); background: var(--err-bg); }
-
-.modal-foot {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-5);
-  border-top: 1px solid var(--line);
-  background: var(--blue-050);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
-.req { color: var(--err); }
+.toasts { position: fixed; right: var(--space-5); bottom: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); z-index: 100; max-width: min(370px, 90vw); }
+.toast { border-radius: var(--r-control); border: 1px solid var(--rule); border-left: 4px solid var(--quieter); padding: var(--space-3) var(--space-4); background: var(--surface); font-size: 13px; font-weight: 600; box-shadow: var(--lift-2); }
+.toast-success { border-left-color: var(--brand-600); color: var(--brand-800); }
+.toast-warning { border-left-color: #b8860b; color: #8a6508; }
 
 /* ===========================================================================
-   8. TOASTS (aria-live region)
-   =========================================================================== */
-.toasts {
-  position: fixed;
-  right: var(--space-5);
-  bottom: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  z-index: 100;
-  max-width: min(360px, 90vw);
-}
-
-.toast {
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface);
-  font-size: 13px;
-  font-weight: 600;
-}
-.toast-success { background: var(--ok-bg);   border-color: #b9dfc9; color: var(--ok); }
-.toast-warning { background: var(--warn-bg); border-color: #f0d9ab; color: var(--warn); }
-
-/* ===========================================================================
-   9. RESPONSIVE — columns stack below 768px
+   10. RESPONSIVE
    =========================================================================== */
 @media (max-width: 768px) {
+  .app-header, .chart-panel { padding: var(--space-4); }
   .board { grid-template-columns: 1fr; padding: var(--space-4); }
   .modal-body { grid-template-columns: 1fr; }
+  .filters { padding: var(--space-3) var(--space-4); position: static; }
   .filters-inner { flex-direction: column; align-items: stretch; }
   .control { min-width: 0; width: 100%; }
-  .filter-status { margin-left: 0; }
+  .filter-status { margin: 0; }
+  .kpi-figure { font-size: 40px; }
+  .chart-row { grid-template-columns: 1fr; gap: var(--space-1); }
+  .chart-figures { justify-content: flex-start; }
   .toasts { right: var(--space-3); left: var(--space-3); bottom: var(--space-3); max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms; animation-iteration-count: 1; transition-duration: .01ms; }
 }
 </style>
 </head>
@@ -524,20 +422,40 @@ dialog::backdrop { background: rgba(11, 37, 69, .55); }
       </span>
       <span class="wordmark-text">
         <strong>UOB IT PMO</strong>
-        <span>Project Delivery Board</span>
+        <span>Delivery control</span>
       </span>
     </div>
-    <button type="button" class="btn btn-ghost" id="open-add-task">+ Add Task</button>
+    <button type="button" class="btn btn-ghost" id="open-add-task">Add task</button>
   </div>
 
-  <!-- Live counts, rebuilt by renderSummary() on every render -->
-  <div class="summary" id="summary"></div>
-
   <p class="demo-note">
-    Demo and training environment only &mdash; not an official UOB system. Nothing is saved:
-    the board lives in memory, so refreshing the page resets it to the seeded demo data.
+    Training environment, not an official UOB system. Nothing is saved: the board is held in
+    memory, so refreshing restores the eight sample tasks.
   </p>
 </header>
+
+<!-- ==========================================================================
+     KPI STRIP — the hero. Rebuilt by renderKpis() on every render.
+     ========================================================================== -->
+<section class="kpi-strip" id="kpis" aria-label="Portfolio summary"></section>
+
+<!-- ==========================================================================
+     PROJECT CHART — distribution across workstreams, carrying schedule risk.
+     Each row filters the board, so the chart is navigation, not decoration.
+     ========================================================================== -->
+<section class="chart-panel" aria-labelledby="chart-heading">
+  <div class="chart-head">
+    <h2 id="chart-heading">Work by project</h2>
+    <p class="chart-meta" id="chart-meta"></p>
+    <div class="legend" aria-hidden="true">
+      <span><i class="seg-backlog"></i>Backlog</span>
+      <span><i class="seg-active"></i>In Progress</span>
+      <span><i class="seg-blocked"></i>Blocked</span>
+      <span><i class="seg-done"></i>Done</span>
+    </div>
+  </div>
+  <div class="chart-rows" id="chart-rows"></div>
+</section>
 
 <!-- ==========================================================================
      FILTER BAR — pure client-side filtering over the in-memory array
@@ -552,8 +470,8 @@ dialog::backdrop { background: rgba(11, 37, 69, .55); }
     </div>
 
     <div class="field">
-      <label for="filter-assignee">Assignee contains</label>
-      <input class="control" id="filter-assignee" type="search" placeholder="e.g. Tan" autocomplete="off">
+      <label for="filter-assignee">Owner</label>
+      <input class="control" id="filter-assignee" type="search" placeholder="Search by name" autocomplete="off">
     </div>
 
     <div class="field">
@@ -614,7 +532,7 @@ dialog::backdrop { background: rgba(11, 37, 69, .55); }
       </div>
 
       <div class="field">
-        <label for="f-assignee">Assignee <span class="req" aria-hidden="true">*</span></label>
+        <label for="f-assignee">Owner <span class="req" aria-hidden="true">*</span></label>
         <input class="control" id="f-assignee" name="assignee" type="text" maxlength="60"
                aria-describedby="e-assignee" autocomplete="off">
         <p class="field-error" id="e-assignee"></p>
@@ -691,6 +609,23 @@ const CATEGORIES = [
 ];
 
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
+
+// Severity codes, standard change-management vernacular. Shown alongside the
+// written priority so the spine colour never carries severity on its own.
+const PRIORITY_CODE = { Critical: "P1", High: "P2", Medium: "P3", Low: "P4" };
+
+// Status -> chart segment class, so the ramp is defined in one place.
+const STATUS_SEG = {
+  "Backlog": "seg-backlog", "In Progress": "seg-active",
+  "Blocked": "seg-blocked", "Done": "seg-done"
+};
+
+const EMPTY_COPY = {
+  "Backlog":     "Nothing queued. Add a task to start one.",
+  "In Progress": "Nothing in flight.",
+  "Blocked":     "Nothing blocked.",
+  "Done":        "Nothing closed yet."
+};
 
 const ID_PREFIX = "UOB-ITPM-";
 const TOAST_MS = 4500;
@@ -808,9 +743,7 @@ function renderCard(task) {
   const priorityKey = task.priority.toLowerCase();
   const overdue = isOverdue(task);
 
-  const overdueBadge = overdue
-    ? '<span class="pill pill-overdue">&#9888; Overdue</span>'
-    : "";
+  const overdueFlag = overdue ? '<span class="overdue-flag">Overdue</span>' : "";
 
   const moveOptions = STATUSES.map(function (status) {
     const selected = status === task.status ? " selected" : "";
@@ -826,35 +759,42 @@ function renderCard(task) {
         '<button type="button" class="btn" data-action="delete-cancel" data-id="' + id + '">No</button>' +
       "</div>"
     : '<div class="card-foot">' +
-        '<label for="move-' + id + '">Move &#9656;</label>' +
+        '<label for="move-' + id + '">Move</label>' +
         '<select class="move-select" id="move-' + id + '" data-action="move" data-id="' + id + '" ' +
           'aria-label="Move task ' + id + ' to another column">' + moveOptions + "</select>" +
       "</div>";
 
   const description = task.description
-    ? '<span><span class="meta-label">Notes:</span> ' + escapeHtml(task.description) + "</span>"
+    ? '<span class="card-notes">' + escapeHtml(task.description) + "</span>"
     : "";
+
+  const code = PRIORITY_CODE[task.priority] || "P4";
 
   return '<article class="card prio-' + escapeHtml(priorityKey) + '" draggable="true" ' +
            'data-id="' + id + '" aria-label="Task ' + id + ': ' + escapeHtml(task.title) + '">' +
-    '<div class="card-top">' +
-      '<span class="task-id">' + id + "</span>" +
-      overdueBadge +
-      '<button type="button" class="icon-btn" data-action="delete-request" data-id="' + id + '" ' +
-        'aria-label="Delete task ' + id + '">&times;</button>' +
+    '<span class="card-spine" aria-hidden="true"></span>' +
+    '<div class="card-body">' +
+      '<div class="card-top">' +
+        '<span class="sev" aria-label="Severity ' + escapeHtml(code) + ', ' +
+          escapeHtml(task.priority) + ' priority">' + escapeHtml(code) + "</span>" +
+        '<span class="task-id num">' + id + "</span>" +
+        overdueFlag +
+        '<button type="button" class="icon-btn" data-action="delete-request" data-id="' + id + '" ' +
+          'aria-label="Delete task ' + id + '">&times;</button>' +
+      "</div>" +
+      '<h3 class="card-title">' + escapeHtml(task.title) + "</h3>" +
+      '<div class="card-meta">' +
+        '<span><span class="meta-label">Project</span> ' + escapeHtml(task.project) + "</span>" +
+        '<span><span class="meta-label">Owner</span> ' + escapeHtml(task.assignee) + "</span>" +
+        '<span class="num"><span class="meta-label">Due</span> ' + escapeHtml(formatDate(task.dueDate)) + "</span>" +
+        description +
+      "</div>" +
+      '<div class="tag-row">' +
+        '<span class="pill pill-' + escapeHtml(priorityKey) + '">' + escapeHtml(task.priority) + "</span>" +
+        '<span class="pill pill-category">' + escapeHtml(task.category) + "</span>" +
+      "</div>" +
+      footer +
     "</div>" +
-    '<h3 class="card-title">' + escapeHtml(task.title) + "</h3>" +
-    '<div class="card-meta">' +
-      '<span><span class="meta-label">Project:</span> ' + escapeHtml(task.project) + "</span>" +
-      '<span><span class="meta-label">Assignee:</span> ' + escapeHtml(task.assignee) + "</span>" +
-      '<span><span class="meta-label">Due:</span> ' + escapeHtml(formatDate(task.dueDate)) + "</span>" +
-      description +
-    "</div>" +
-    '<div class="tag-row">' +
-      '<span class="pill pill-' + escapeHtml(priorityKey) + '">' + escapeHtml(task.priority) + " priority</span>" +
-      '<span class="pill pill-category">' + escapeHtml(task.category) + "</span>" +
-    "</div>" +
-    footer +
   "</article>";
 }
 
@@ -868,13 +808,13 @@ function renderBoard() {
 
     const cards = inColumn.length
       ? inColumn.map(renderCard).join("")
-      : '<p class="column-empty">No tasks in this column.</p>';
+      : '<p class="column-empty">' + escapeHtml(EMPTY_COPY[status]) + "</p>";
 
     return '<section class="column" data-status="' + escapeHtml(status) + '" ' +
              'aria-label="' + escapeHtml(status) + ' column">' +
       '<div class="column-header">' +
         "<h2>" + escapeHtml(status) + "</h2>" +
-        '<span class="count-badge" aria-label="' + inColumn.length + ' tasks in ' + escapeHtml(status) + '">' +
+        '<span class="count num" aria-label="' + inColumn.length + ' tasks in ' + escapeHtml(status) + '">' +
           inColumn.length + "</span>" +
       "</div>" +
       '<p class="visually-hidden">' + escapeHtml(STATUS_HINTS[status]) + "</p>" +
@@ -882,26 +822,81 @@ function renderBoard() {
     "</section>";
   }).join("");
 
-  renderSummary(state.tasks);
+  renderKpis(state.tasks);
+  renderProjectChart(state.tasks);
   renderFilterStatus(state.tasks, visible);
 }
 
-/** Live totals in the header: total, per-status, overdue. */
-function renderSummary(allTasks) {
+/** The KPI hero. Always reports the whole board, never the filtered view. */
+function renderKpis(allTasks) {
+  const total   = allTasks.length;
+  const open    = allTasks.filter(function (t) { return t.status !== "Done"; }).length;
+  const blocked = allTasks.filter(function (t) { return t.status === "Blocked"; }).length;
   const overdue = allTasks.filter(isOverdue).length;
+  const done    = total - open;
 
-  const items = ['<span class="summary-item">Total <b>' + allTasks.length + "</b></span>"];
+  function tile(cls, figure, label, sub) {
+    return '<div class="kpi ' + cls + '">' +
+      '<span class="kpi-figure num">' + figure + "</span>" +
+      '<span class="kpi-label">' + escapeHtml(label) + "</span>" +
+      '<span class="kpi-sub">' + escapeHtml(sub) + "</span>" +
+    "</div>";
+  }
 
-  STATUSES.forEach(function (status) {
-    const count = allTasks.filter(function (task) { return task.status === status; }).length;
-    items.push('<span class="summary-item">' + escapeHtml(status) + " <b>" + count + "</b></span>");
-  });
+  document.getElementById("kpis").innerHTML =
+    tile("kpi-total", total, "Tasks on the board", done + " closed") +
+    tile("", open, "Still open", "across " + STATUSES.length + " columns") +
+    tile("", blocked, "Blocked", blocked ? "waiting on a dependency" : "nothing waiting") +
+    tile(overdue ? "kpi-alert" : "kpi-clear", overdue, "Overdue",
+         overdue ? "past due and not closed" : "nothing past due");
+}
 
-  items.push('<span class="summary-item' + (overdue ? " is-overdue" : "") + '">Overdue <b>' +
-             overdue + "</b></span>");
+/** Work by project: status breakdown plus schedule risk, per workstream.
+ *  Only projects that actually carry work are drawn. */
+function renderProjectChart(allTasks) {
+  const rows = PROJECTS.map(function (project) {
+    const tasks = allTasks.filter(function (t) { return t.project === project; });
+    return {
+      project: project,
+      total: tasks.length,
+      overdue: tasks.filter(isOverdue).length,
+      byStatus: STATUSES.map(function (status) {
+        return { status: status, n: tasks.filter(function (t) { return t.status === status; }).length };
+      })
+    };
+  }).filter(function (r) { return r.total > 0; });
 
-  // The summary always reports the whole board, not the filtered view.
-  document.getElementById("summary").innerHTML = items.join("");
+  const max = rows.reduce(function (m, r) { return Math.max(m, r.total); }, 0) || 1;
+
+  document.getElementById("chart-rows").innerHTML = rows.map(function (r) {
+    const segments = r.byStatus.filter(function (s) { return s.n > 0; }).map(function (s) {
+      const pct = (s.n / max) * 100;
+      return '<span class="chart-seg ' + STATUS_SEG[s.status] + '" style="width:' + pct.toFixed(2) + '%"></span>';
+    }).join("");
+
+    const breakdown = r.byStatus.filter(function (s) { return s.n > 0; })
+      .map(function (s) { return s.n + " " + s.status.toLowerCase(); }).join(", ");
+
+    const risk = r.overdue
+      ? '<span class="chart-risk num">' + r.overdue + " overdue</span>"
+      : '<span class="chart-risk-none">on schedule</span>';
+
+    const active = state.filters.project === r.project;
+
+    return '<button type="button" class="chart-row" data-action="filter-project" ' +
+             'data-project="' + escapeHtml(r.project) + '" aria-pressed="' + active + '" ' +
+             'aria-label="' + escapeHtml(r.project) + ": " + r.total + " tasks, " +
+             escapeHtml(breakdown) + ", " + r.overdue + ' overdue. Filter the board to this project.">' +
+      '<span class="chart-name">' + escapeHtml(r.project) + "</span>" +
+      '<span class="chart-track">' + segments + "</span>" +
+      '<span class="chart-figures">' + risk +
+        '<span class="chart-count num">' + r.total + "</span></span>" +
+    "</button>";
+  }).join("");
+
+  // State the window and the sample size, as any honest chart must.
+  document.getElementById("chart-meta").textContent =
+    "Current board state, n=" + allTasks.length + " tasks across " + rows.length + " active workstreams";
 }
 
 function renderFilterStatus(allTasks, visibleTasks) {
@@ -964,12 +959,25 @@ function deleteTask(id) {
   state.tasks.splice(index, 1);
   state.pendingDelete = null;
   renderBoard();
-  showToast("Task " + id + " deleted.", "success");
+  showToast("Deleted " + id + ".", "success");
 }
 
 /* ===========================================================================
    8. CARD INTERACTIONS — delegated from the board so re-renders keep working
    =========================================================================== */
+/** Chart rows are buttons: selecting one filters the board to that project,
+ *  and selecting it again clears the filter. The chart drives the board. */
+function handleChartClick(event) {
+  const row = event.target.closest('button[data-action="filter-project"]');
+  if (!row) return;
+
+  const project = row.getAttribute("data-project");
+  const select = document.getElementById("filter-project");
+  select.value = state.filters.project === project ? "" : project;
+  readFiltersFromInputs();
+  document.getElementById("board").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function handleBoardClick(event) {
   const button = event.target.closest("button[data-action]");
   if (!button) return;
@@ -1164,7 +1172,7 @@ function handleSubmit(event) {
 
   // Optimistic UI: the card is on the board before the network call starts.
   const task = addTask(fields);
-  showToast("Task " + task.id + " added to " + task.status + ".", "success");
+  showToast("Added " + task.id + " to " + task.status + ".", "success");
 
   setSubmitting(true);
   notifyNewTask(task)
@@ -1348,6 +1356,7 @@ function initListeners() {
   document.getElementById("filter-priority").addEventListener("change", readFiltersFromInputs);
   document.getElementById("filter-assignee").addEventListener("input", readFiltersFromInputs);
   document.getElementById("clear-filters").addEventListener("click", clearFilters);
+  document.getElementById("chart-rows").addEventListener("click", handleChartClick);
 
   document.getElementById("open-add-task").addEventListener("click", openDialog);
   document.getElementById("close-dialog").addEventListener("click", closeDialog);
