@@ -9,3 +9,6 @@
 # Node artifacts (this project has no npm dependencies; guard against strays)
 node_modules/
 package-lock.json
+
+# Playwright MCP session output (snapshots, traces, screenshots)
+.playwright-mcp/

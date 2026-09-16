@@ -8,7 +8,10 @@
         "--browser", "chromium",
         "--headless",
         "--isolated"
-      ]
+      ],
+      "env": {
+        "LD_LIBRARY_PATH": "/home/jon/.local/playwright-libs/usr/lib/x86_64-linux-gnu"
+      }
     }
   }
 }
