@@ -9,6 +9,15 @@ internal **demo and training tool**.
 > text wordmark and a generic corporate blue palette — no UOB logo, trademark, or branding,
 > and it does not reproduce or connect to any real UOB system. All task data is invented.
 
+![The board on desktop — four columns with live count badges, colour-coded priority borders and overdue badges](docs/board-desktop.png)
+
+<details>
+<summary>On a phone (390px) — columns stack</summary>
+
+![The same board at 390px wide, with the four columns stacked vertically](docs/board-mobile.png)
+
+</details>
+
 ---
 
 ## Running it

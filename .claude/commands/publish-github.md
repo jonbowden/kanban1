@@ -1,7 +1,7 @@
 ---
-description: Security-scan, push to GitHub, deploy Pages via Actions, and update the README and About section
+description: Security-scan, push to GitHub, deploy Pages via Actions, screenshot the live site, and update the README and About section
 argument-hint: [repo-url] (omit to use the existing origin)
-allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion, mcp__playwright__browser_navigate, mcp__playwright__browser_resize, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_wait_for, mcp__playwright__browser_snapshot, mcp__playwright__browser_console_messages
 ---
 
 Ship this project to GitHub: scan it for anything that must not go public, push it,
@@ -190,6 +190,52 @@ re-run the workflow.
 
 ---
 
+## Phase 3b — Screenshot the live site (Playwright MCP)
+
+Capture the deployed site and commit the images, so the README shows the thing rather than
+only describing it. Do this **after** Phase 3 confirms the site is serving the current build
+— a screenshot of a stale deploy is worse than none.
+
+Use the project's Playwright MCP server (configured in `.mcp.json`):
+
+1. `browser_resize` to `1440x900`
+2. `browser_navigate` to the live Pages URL
+3. `browser_wait_for` on a string that only appears once the page's JavaScript has rendered
+   (not a static heading) — otherwise you capture an empty shell
+4. `browser_take_screenshot` with `filename: "docs/board-desktop.png"`, `scale: "css"`
+5. `browser_resize` to `390x1200` and capture `docs/board-mobile.png` to show the responsive
+   layout
+
+Then **look at both images** with the Read tool before committing. Check the page actually
+rendered, that no layout is broken or clipped, and that nothing sensitive is on screen.
+Never commit a screenshot you have not viewed.
+
+Reference them from the README with descriptive alt text, putting the narrow one inside a
+`<details>` block so it does not dominate the page:
+
+```markdown
+![Alt text describing what the screenshot shows](docs/board-desktop.png)
+
+<details>
+<summary>On a phone (390px) — columns stack</summary>
+
+![Alt text for the narrow layout](docs/board-mobile.png)
+
+</details>
+```
+
+**If the Playwright MCP tools are unavailable** (the server is configured but Claude Code has
+not been restarted since, so no `mcp__playwright__*` tools exist), say so rather than
+silently skipping. Either ask the user to restart, or drive the server over stdio as a
+fallback — spawn `npx @playwright/mcp@latest --browser chromium --headless --isolated`,
+speak JSON-RPC to it (`initialize`, `notifications/initialized`, then `tools/call`), and set
+`LD_LIBRARY_PATH` to match `.mcp.json` or Chromium will not launch.
+
+Note the screenshots are regenerated each run, so `git status` will show them as modified
+whenever the UI changes. That is intended — it keeps the README honest.
+
+---
+
 ## Phase 4 — README
 
 Create or update `README.md`. If one exists, edit it rather than overwriting — keep any
@@ -199,6 +245,8 @@ Derive the content from what the code actually does; do not invent features, bad
 roadmaps, licences or contribution guidelines that don't exist. Aim for:
 
 - One-line description of what it is, and a link to the live Pages URL
+- The screenshots captured in Phase 3b, near the top — a reader should see the thing before
+  they read about it
 - How to run it locally (the genuine steps for this project)
 - Any configuration the user must change themselves, named by file and line
 - Constraints a contributor would otherwise violate — if the project has a `CLAUDE.md`,
