@@ -22,53 +22,39 @@
 
 <style>
 /* ===========================================================================
-   1. TOKENS
-   ---------------------------------------------------------------------------
-   Direction: "delivery control" - a change-control status sheet, not a
-   productivity app. Flat surfaces, no shadows; depth comes from value
-   contrast. Radius encodes role rather than being one value on everything.
+   1. DESIGN TOKENS — palette + spacing scale (no !important anywhere)
    =========================================================================== */
 :root {
-  /* Base */
-  --ink:        #0e1a2b;   /* authority: header ground, primary type */
-  --ink-2:      #1b2c44;   /* raised ink, for bands within the header */
-  --paper:      #dfe4ec;   /* the board sheet */
-  --surface:    #ffffff;   /* card face */
-  --rule:       #d5dce6;   /* structure */
-  --rule-soft:  #e6ebf1;
-  --quiet:      #5b6875;   /* secondary type */
-  --quieter:    #808c99;
+  /* Corporate blue palette */
+  --blue-900: #0b2545;
+  --blue-800: #123a6b;
+  --blue-700: #1b4f8f;
+  --blue-600: #2166b0;
+  --blue-100: #e3edf9;
+  --blue-050: #f2f7fd;
 
-  /* Signal set - severity is content, not decoration.
-     Deliberately grave: a bank's P1 is not a cheerful red. */
-  --p1:    #a4262c;
-  --p1-bg: #fbecec;
-  --p2:    #9a5b00;
-  --p2-bg: #fbf1e3;
-  --p3:    #1b5fc1;
-  --p3-bg: #e9f0fb;
-  --p4:    #6b7684;
-  --p4-bg: #eef1f4;
-  --done:    #0b6b45;
-  --done-bg: #e7f3ed;
+  /* Neutrals */
+  --ink:        #1b2430;
+  --ink-soft:   #5a6675;
+  --ink-faint:  #8a94a2;
+  --line:       #d8dee7;
+  --line-soft:  #e8edf3;
+  --surface:    #ffffff;
+  --canvas:     #f4f6f9;
 
-  /* Column identity. Each status owns a hue, so a glance at the board reads
-     as a shape of colour before a single word is read. Saturation tracks
-     urgency: blocked is hottest, done is coolest and lowest. */
-  --col-backlog:      #475569;
-  --col-backlog-wash: #e2e7ef;
-  --col-active:       #1d4ed8;
-  --col-active-wash:  #dbe6fb;
-  --col-blocked:      #b02a2a;
-  --col-blocked-wash: #f8dede;
-  --col-done:         #15734c;
-  --col-done-wash:    #dcebe3;
+  /* Priority colours (always paired with a text label — never colour alone) */
+  --prio-critical: #c62828;
+  --prio-high:     #e08a00;
+  --prio-medium:   var(--blue-600);
+  --prio-low:      #8a94a2;
 
-  /* Shadows are tinted with the surface's own hue rather than neutral grey,
-     and layered so the falloff reads as light, not a blur stamp. */
-  --lift-1: 0 1px 1px rgba(18, 32, 54, .05), 0 2px 4px rgba(18, 32, 54, .06);
-  --lift-2: 0 2px 4px rgba(18, 32, 54, .07), 0 8px 18px rgba(18, 32, 54, .10);
-  --lift-head: 0 1px 0 rgba(255,255,255,.14) inset, 0 6px 16px rgba(10, 20, 36, .18);
+  /* Status / feedback */
+  --ok:    #1e7a44;
+  --ok-bg: #e6f4ec;
+  --warn:    #9a6100;
+  --warn-bg: #fdf3e0;
+  --err:     #c62828;
+  --err-bg:  #fdecec;
 
   /* Spacing scale */
   --space-1: 4px;
@@ -76,19 +62,19 @@
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 24px;
-  --space-6: 36px;
+  --space-6: 32px;
 
-  /* Radius encodes role: panels read as structure, controls as interactive */
-  --r-panel:   3px;
-  --r-card:    2px;
-  --r-control: 6px;
+  --radius:   6px;
+  --radius-lg: 10px;
+  --shadow-1: 0 1px 2px rgba(11, 37, 69, .08), 0 1px 3px rgba(11, 37, 69, .06);
+  --shadow-2: 0 6px 24px rgba(11, 37, 69, .18);
 
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
           Arial, "Noto Sans", sans-serif;
 }
 
 /* ===========================================================================
-   2. BASE
+   2. BASE / RESET
    =========================================================================== */
 * { box-sizing: border-box; }
 
@@ -96,43 +82,43 @@ body {
   margin: 0;
   font-family: var(--font);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--ink);
-  background: var(--paper);
-  -webkit-font-smoothing: antialiased;
+  background: var(--canvas);
 }
 
-h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+h1, h2, h3 { margin: 0; font-weight: 600; }
 
-button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
 
-/* Numerals align in columns - IDs, dates and counts are all data */
-.task-id, .count, .datum b, .card-due, .move-select { font-variant-numeric: tabular-nums; }
-
+/* Visible focus ring on every interactive element */
 :focus-visible {
-  outline: 2px solid var(--p3);
+  outline: 3px solid var(--blue-600);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 3px;
 }
-
-.app-header :focus-visible { outline-color: #8fb6f2; }
 
 .visually-hidden {
-  position: absolute; width: 1px; height: 1px;
-  margin: -1px; padding: 0; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ===========================================================================
-   3. HEADER - identity band, then the risk datum line
+   3. HEADER — wordmark, live summary strip, add-task action
    =========================================================================== */
 .app-header {
-  background:
-    radial-gradient(120% 140% at 88% -30%, rgba(63, 114, 196, .40) 0%, rgba(63, 114, 196, 0) 58%),
-    linear-gradient(168deg, #17263d 0%, var(--ink) 52%, #0a1422 100%);
+  background: var(--blue-900);
   color: #fff;
-  padding: var(--space-5) var(--space-5) 0;
-  border-bottom: 3px solid #0a1422;
+  padding: var(--space-4) var(--space-5);
 }
 
 .header-top {
@@ -140,106 +126,109 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
-  padding-bottom: var(--space-5);
 }
 
-.wordmark { display: flex; align-items: center; gap: var(--space-3); margin-right: auto; }
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-right: auto;
+}
 
 .wordmark-glyph {
-  display: grid; place-items: center;
-  width: 26px; height: 26px;
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  border: 2px solid rgba(255, 255, 255, .55);
+  border-radius: var(--radius);
   flex: none;
-  color: #9fc0f0;
 }
 
-.wordmark-text { display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
-.wordmark-text strong { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
-.wordmark-text span { font-size: 13px; color: #9aa8bb; }
+.wordmark-text { display: flex; flex-direction: column; }
+.wordmark-text strong { font-size: 16px; letter-spacing: .04em; }
+.wordmark-text span { font-size: 11px; color: rgba(255, 255, 255, .7); letter-spacing: .06em; text-transform: uppercase; }
 
-/* --- the risk datum line: the one place this design raises its voice ------ */
+.btn {
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--line-soft);
+  color: var(--ink);
+}
+.btn:hover { background: var(--line); }
+
+.btn-primary { background: var(--blue-600); color: #fff; }
+.btn-primary:hover { background: var(--blue-700); }
+.btn-primary[disabled] { background: var(--blue-100); color: var(--ink-faint); cursor: progress; }
+
+.btn-ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, .45);
+  color: #fff;
+}
+.btn-ghost:hover { background: rgba(255, 255, 255, .12); }
+
+/* Live summary strip */
 .summary {
   display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
-  gap: 1px;
-  background: rgba(255,255,255,.10);
-  border: 1px solid rgba(255,255,255,.12);
-  border-bottom: none;
-  border-radius: var(--r-panel) var(--r-panel) 0 0;
-  overflow: hidden;
-  box-shadow: var(--lift-head);
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
-.datum {
-  background: linear-gradient(180deg, #23374f 0%, var(--ink-2) 100%);
-  padding: var(--space-3) var(--space-4);
+.summary-item {
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  font-size: 12px;
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
-  font-size: 12px;
-  color: #9aa8bb;
-  flex: 0 0 auto;
-  white-space: nowrap;
 }
-.datum b { font-size: 19px; font-weight: 700; color: #fff; line-height: 1.1; }
-
-.datum-total { border-right: 1px solid rgba(255,255,255,.12); }
-.datum-total b { font-size: 24px; }
-
-/* The alert sits hard right, away from the routine counts */
-.summary .datum:last-child { margin-left: auto; }
-
-/* Done recedes even here - finished work is archive, not active risk */
-.datum-done b { color: #9aa8bb; }
-
-.datum-alert {
-  background: linear-gradient(180deg, #c33 0%, var(--p1) 100%);
-  color: #fadcdc;
-  box-shadow: 0 0 0 1px rgba(255,140,140,.35) inset;
-}
-.datum-alert b { color: #fff; font-size: 24px; }
-.datum-clear b { color: #8fd3b4; }
+.summary-item b { font-size: 15px; }
+.summary-item.is-overdue { background: rgba(198, 40, 40, .28); border-color: rgba(255, 170, 170, .5); }
 
 .demo-note {
-  margin: 0;
-  padding: var(--space-3) 0 var(--space-4);
+  margin-top: var(--space-3);
   font-size: 12px;
-  color: #8896a8;
-  max-width: 78ch;
+  color: rgba(255, 255, 255, .72);
 }
 
 /* ===========================================================================
-   4. FILTERS - quiet by design; it is a tool, not a feature
+   4. FILTER BAR
    =========================================================================== */
 .filters {
   background: var(--surface);
-  border-bottom: 1px solid var(--rule);
-  padding: var(--space-4) var(--space-5);
-  box-shadow: var(--lift-1);
-  position: relative;
-  z-index: 1;
+  border-bottom: 1px solid var(--line);
+  padding: var(--space-3) var(--space-5);
 }
 
-.filters-inner { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-4); }
+.filters-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
 
 .field { display: flex; flex-direction: column; gap: var(--space-1); }
-.field > label { font-size: 12px; font-weight: 600; color: var(--quiet); }
+.field > label { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
 
 .control {
-  border: 1px solid var(--rule);
-  border-radius: var(--r-control);
-  padding: 7px var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
   background: var(--surface);
-  min-width: 190px;
-  color: var(--ink);
+  min-width: 180px;
 }
-.control:hover { border-color: var(--quieter); }
-.control::placeholder { color: var(--quieter); }
+.control:hover { border-color: var(--blue-600); }
 
-.filter-status { margin: 0 0 6px auto; font-size: 12px; color: var(--quiet); }
+.filter-status { margin-left: auto; font-size: 12px; color: var(--ink-soft); }
 
 /* ===========================================================================
-   5. BOARD
+   5. BOARD + COLUMNS
    =========================================================================== */
 .board {
   display: grid;
@@ -250,44 +239,34 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 }
 
 .column {
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-panel);
+  background: var(--blue-050);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
-  min-height: 200px;
-  overflow: hidden;
-  box-shadow: var(--lift-1);
+  min-height: 220px;
 }
 
-/* Each column header is a solid band in that status's hue, so the board
-   reads as a shape of colour before a word is read. */
 .column-header {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
-  background: var(--col-backlog);
-  color: #fff;
-  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset;
+  border-bottom: 1px solid var(--line);
 }
-.column-header h2 { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: .005em; }
+.column-header h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--blue-800); }
 
-.count {
+.count-badge {
   margin-left: auto;
-  font-size: 14px;
-  font-weight: 700;
+  background: var(--blue-800);
   color: #fff;
-  background: rgba(0, 0, 0, .26);
   border-radius: 999px;
-  min-width: 26px;
-  padding: 1px 9px;
+  min-width: 24px;
+  padding: 1px var(--space-2);
   text-align: center;
+  font-size: 12px;
+  font-weight: 600;
 }
-
-.column[data-status="In Progress"] .column-header { background: var(--col-active); }
-.column[data-status="Blocked"]     .column-header { background: var(--col-blocked); }
-.column[data-status="Done"]        .column-header { background: var(--col-done); }
 
 .column-body {
   padding: var(--space-3);
@@ -295,203 +274,161 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
   flex-direction: column;
   gap: var(--space-3);
   flex: 1;
-  background: var(--col-backlog-wash);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
-.column[data-status="In Progress"] .column-body { background: var(--col-active-wash); }
-.column[data-status="Blocked"]     .column-body { background: var(--col-blocked-wash); }
-.column[data-status="Done"]        .column-body { background: var(--col-done-wash); }
-.column[data-status="Done"] .card { background: #fbfdfc; }
-.column[data-status="Done"] .card-spine { background: #9bb3a8; }
-.column[data-status="Done"] .sev { background: #4a6155; }
-.column[data-status="Done"] .pill { background: var(--done-bg); color: #3c6354; }
-.column[data-status="Done"] .pill-category { background: transparent; color: var(--quiet); }
-.column[data-status="Done"] .card-title { color: #33413c; }
-
-/* Drop target: the whole panel responds, no dashed-outline cliche */
-.column.drop-target { border-color: var(--col-active); box-shadow: var(--lift-2); }
-.column.drop-target .column-body { background: #dbe7fb; }
+/* Drop-target highlight while dragging a card over a column */
+.column.drop-target { border-color: var(--blue-600); }
+.column.drop-target .column-body {
+  background: var(--blue-100);
+  box-shadow: inset 0 0 0 2px var(--blue-600);
+}
 
 .column-empty {
-  margin: 0;
-  color: var(--quieter);
+  color: var(--ink-faint);
   font-size: 12px;
-  padding: var(--space-4) var(--space-2);
+  font-style: italic;
+  padding: var(--space-3);
+  text-align: center;
 }
 
 /* ===========================================================================
-   6. CARDS - flat, ruled, with a severity spine
+   6. CARDS
    =========================================================================== */
 .card {
-  display: flex;
   background: var(--surface);
-  border: 1px solid rgba(18, 32, 54, .10);
-  border-radius: var(--r-card);
-  box-shadow: var(--lift-1);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--prio-medium);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  padding: var(--space-3);
   cursor: grab;
 }
-.card:hover { box-shadow: var(--lift-2); border-color: rgba(18, 32, 54, .18); }
 .card:active { cursor: grabbing; }
-.card.dragging { opacity: .4; }
+.card.dragging { opacity: .45; }
 
-/* The spine: colour-codes severity. The P-code and the written priority
-   below carry the same information, so colour is never doing this alone. */
-.card-spine {
-  flex: none;
-  width: 6px;
-  background: linear-gradient(180deg, #8e98a6 0%, var(--p4) 100%);
-  border-radius: 1px 0 0 1px;
+/* Left border colour-codes priority (the pill below carries the text label) */
+.card.prio-critical { border-left-color: var(--prio-critical); }
+.card.prio-high     { border-left-color: var(--prio-high); }
+.card.prio-medium   { border-left-color: var(--prio-medium); }
+.card.prio-low      { border-left-color: var(--prio-low); }
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 }
-.prio-critical .card-spine { background: linear-gradient(180deg, #c8474d 0%, var(--p1) 100%); }
-.prio-high     .card-spine { background: linear-gradient(180deg, #bd7a17 0%, var(--p2) 100%); }
-.prio-medium   .card-spine { background: linear-gradient(180deg, #3d7bd9 0%, var(--p3) 100%); }
-.prio-low      .card-spine { background: linear-gradient(180deg, #8e98a6 0%, var(--p4) 100%); }
 
-.card-body { flex: 1; min-width: 0; padding: var(--space-3); }
-
-.card-top { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
-
-.sev {
-  flex: none;
+.task-id {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: .02em;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: var(--p4);
-  color: #fff;
-}
-.prio-critical .sev { background: var(--p1); }
-.prio-high     .sev { background: var(--p2); }
-.prio-medium   .sev { background: var(--p3); }
-
-.task-id { font-size: 11px; color: var(--quieter); letter-spacing: .01em; }
-
-.overdue-flag {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--p1);
-  border-bottom: 2px solid var(--p1);
-  padding-bottom: 1px;
+  letter-spacing: .04em;
+  color: var(--blue-700);
 }
 
 .icon-btn {
   margin-left: auto;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--quieter);
-  border-radius: var(--r-control);
-  width: 22px; height: 22px;
+  color: var(--ink-faint);
+  border-radius: var(--radius);
+  width: 24px; height: 24px;
   line-height: 1;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
   flex: none;
-  padding: 0;
 }
-.icon-btn:hover { background: var(--p1-bg); color: var(--p1); }
+.icon-btn:hover { background: var(--err-bg); color: var(--err); }
 
-.card-title {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.35;
+.card-title { font-size: 14px; font-weight: 600; margin-bottom: var(--space-2); }
+
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--ink-soft);
   margin-bottom: var(--space-2);
-  max-width: 46ch;
 }
+.card-meta .meta-label { color: var(--ink-faint); }
 
-.card-meta { display: grid; gap: 1px; font-size: 12px; color: var(--quiet); margin-bottom: var(--space-3); }
-.card-meta .meta-label { color: var(--quieter); }
-.card-notes { margin-top: var(--space-1); line-height: 1.45; max-width: 56ch; }
-
-.tag-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-3); }
+.tag-row { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-2); }
 
 .pill {
   font-size: 11px;
   font-weight: 600;
-  border-radius: 2px;
-  padding: 2px 6px;
+  border-radius: 999px;
+  padding: 2px var(--space-2);
   border: 1px solid transparent;
   white-space: nowrap;
 }
-.pill-critical { background: var(--p1-bg); color: var(--p1); }
-.pill-high     { background: var(--p2-bg); color: var(--p2); }
-.pill-medium   { background: var(--p3-bg); color: var(--p3); }
-.pill-low      { background: var(--p4-bg); color: var(--p4); }
-.pill-category { background: transparent; color: var(--quiet); border-color: var(--rule); }
+
+/* Priority pills carry the priority word — colour is never the only signal */
+.pill-critical { background: var(--err-bg);  color: var(--prio-critical); border-color: #f2c3c3; }
+.pill-high     { background: var(--warn-bg); color: var(--warn);          border-color: #f0d9ab; }
+.pill-medium   { background: var(--blue-100);color: var(--blue-800);      border-color: #c2d9f2; }
+.pill-low      { background: var(--line-soft); color: var(--ink-soft);    border-color: var(--line); }
+
+.pill-category { background: var(--surface); color: var(--ink-soft); border-color: var(--line); }
+
+.pill-overdue { background: var(--err-bg); color: var(--err); border-color: #f2c3c3; }
 
 .card-foot {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  border-top: 1px solid var(--rule-soft);
+  border-top: 1px solid var(--line-soft);
   padding-top: var(--space-2);
 }
-.card-foot label { font-size: 11px; color: var(--quieter); }
+.card-foot label { font-size: 11px; color: var(--ink-faint); }
 
 .move-select {
-  border: 1px solid var(--rule);
-  border-radius: var(--r-control);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 2px var(--space-1);
   font-size: 12px;
   background: var(--surface);
-  color: var(--ink);
-  max-width: 132px;
+  max-width: 130px;
 }
-.move-select:hover { border-color: var(--quieter); }
 
-/* Inline delete confirmation - never a native confirm() */
+/* Inline delete confirmation (no native confirm() dialog) */
 .confirm-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  border-top: 2px solid var(--p1);
-  padding-top: var(--space-2);
+  background: var(--err-bg);
+  border: 1px solid #f2c3c3;
+  border-radius: var(--radius);
+  padding: var(--space-2);
+  margin-top: var(--space-2);
   font-size: 12px;
-  color: var(--p1);
   font-weight: 600;
+  color: var(--err);
 }
 .confirm-row .btn { padding: 2px var(--space-3); font-size: 12px; }
+.btn-danger { background: var(--err); color: #fff; }
+.btn-danger:hover { background: #a91f1f; }
 
 /* ===========================================================================
-   7. BUTTONS
-   =========================================================================== */
-.btn {
-  border: 1px solid var(--rule);
-  border-radius: var(--r-control);
-  padding: 7px var(--space-4);
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--surface);
-  color: var(--ink);
-}
-.btn:hover { border-color: var(--quieter); }
-
-.btn-primary { background: var(--p3); border-color: var(--p3); color: #fff; }
-.btn-primary:hover { background: #164ea3; border-color: #164ea3; }
-.btn-primary[disabled] { background: var(--quieter); border-color: var(--quieter); cursor: progress; }
-
-.btn-ghost { background: #fff; border-color: #fff; color: var(--ink); }
-.btn-ghost:hover { background: #e4ebf5; border-color: #e4ebf5; }
-
-.btn-danger { background: var(--p1); border-color: var(--p1); color: #fff; }
-.btn-danger:hover { background: #8a1f24; border-color: #8a1f24; }
-
-/* ===========================================================================
-   8. MODAL
+   7. MODAL (native <dialog>)
    =========================================================================== */
 dialog {
   border: none;
-  border-radius: var(--r-panel);
+  border-radius: var(--radius-lg);
   padding: 0;
-  width: min(580px, 94vw);
+  width: min(560px, 94vw);
+  box-shadow: var(--shadow-2);
   color: var(--ink);
-  border-top: 3px solid var(--p3);
 }
-dialog::backdrop { background: rgba(14, 26, 43, .6); }
+dialog::backdrop { background: rgba(11, 37, 69, .55); }
 
 .modal-header {
-  display: flex; align-items: center; gap: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--line);
 }
 .modal-header h2 { font-size: 16px; margin-right: auto; }
 
@@ -500,67 +437,73 @@ dialog::backdrop { background: rgba(14, 26, 43, .6); }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
-  max-height: 66vh;
+  max-height: 68vh;
   overflow-y: auto;
 }
 .modal-body .field { min-width: 0; }
 .modal-body .field.span-2 { grid-column: 1 / -1; }
 .modal-body .control { width: 100%; min-width: 0; }
-.modal-body textarea { resize: vertical; min-height: 74px; line-height: 1.5; }
+.modal-body textarea { resize: vertical; min-height: 76px; }
 
-.field-hint { margin: 0; font-size: 11px; color: var(--quieter); }
-.field-error { margin: 0; font-size: 12px; font-weight: 600; color: var(--p1); }
-.control[aria-invalid="true"] { border-color: var(--p1); background: var(--p1-bg); }
+.field-hint { font-size: 11px; color: var(--ink-faint); }
+
+.field-error {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--err);
+  min-height: 0;
+}
+.control[aria-invalid="true"] { border-color: var(--err); background: var(--err-bg); }
 
 .modal-foot {
-  display: flex; justify-content: flex-end; gap: var(--space-2);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
   padding: var(--space-4) var(--space-5);
-  border-top: 1px solid var(--rule);
-  background: #f6f8fa;
+  border-top: 1px solid var(--line);
+  background: var(--blue-050);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
-.req { color: var(--p1); }
+.req { color: var(--err); }
 
 /* ===========================================================================
-   9. TOASTS
+   8. TOASTS (aria-live region)
    =========================================================================== */
 .toasts {
   position: fixed;
-  right: var(--space-5); bottom: var(--space-5);
-  display: flex; flex-direction: column; gap: var(--space-2);
+  right: var(--space-5);
+  bottom: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   z-index: 100;
-  max-width: min(370px, 90vw);
+  max-width: min(360px, 90vw);
 }
 
 .toast {
-  border-radius: var(--r-control);
-  border: 1px solid var(--rule);
-  border-left: 4px solid var(--quieter);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-2);
   padding: var(--space-3) var(--space-4);
   background: var(--surface);
   font-size: 13px;
   font-weight: 600;
 }
-.toast-success { border-left-color: var(--done); color: var(--done); }
-.toast-warning { border-left-color: var(--p2); color: var(--p2); }
+.toast-success { background: var(--ok-bg);   border-color: #b9dfc9; color: var(--ok); }
+.toast-warning { background: var(--warn-bg); border-color: #f0d9ab; color: var(--warn); }
 
 /* ===========================================================================
-   10. RESPONSIVE
+   9. RESPONSIVE — columns stack below 768px
    =========================================================================== */
 @media (max-width: 768px) {
-  .app-header { padding: var(--space-4) var(--space-4) 0; }
   .board { grid-template-columns: 1fr; padding: var(--space-4); }
   .modal-body { grid-template-columns: 1fr; }
-  .filters { padding: var(--space-4); }
   .filters-inner { flex-direction: column; align-items: stretch; }
   .control { min-width: 0; width: 100%; }
-  .filter-status { margin: 0; }
-  .datum { min-width: 0; flex: 1 1 42%; }
+  .filter-status { margin-left: 0; }
   .toasts { right: var(--space-3); left: var(--space-3); bottom: var(--space-3); max-width: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: .01ms; animation-iteration-count: 1; transition-duration: .01ms; }
 }
 </style>
 </head>
@@ -581,18 +524,18 @@ dialog::backdrop { background: rgba(14, 26, 43, .6); }
       </span>
       <span class="wordmark-text">
         <strong>UOB IT PMO</strong>
-        <span>Delivery control</span>
+        <span>Project Delivery Board</span>
       </span>
     </div>
-    <button type="button" class="btn btn-ghost" id="open-add-task">Add task</button>
+    <button type="button" class="btn btn-ghost" id="open-add-task">+ Add Task</button>
   </div>
 
   <!-- Live counts, rebuilt by renderSummary() on every render -->
   <div class="summary" id="summary"></div>
 
   <p class="demo-note">
-    Training environment, not an official UOB system. Nothing is saved: the board is held in
-    memory, so refreshing restores the eight sample tasks.
+    Demo and training environment only &mdash; not an official UOB system. Nothing is saved:
+    the board lives in memory, so refreshing the page resets it to the seeded demo data.
   </p>
 </header>
 
@@ -609,8 +552,8 @@ dialog::backdrop { background: rgba(14, 26, 43, .6); }
     </div>
 
     <div class="field">
-      <label for="filter-assignee">Owner</label>
-      <input class="control" id="filter-assignee" type="search" placeholder="Search by name" autocomplete="off">
+      <label for="filter-assignee">Assignee contains</label>
+      <input class="control" id="filter-assignee" type="search" placeholder="e.g. Tan" autocomplete="off">
     </div>
 
     <div class="field">
@@ -671,7 +614,7 @@ dialog::backdrop { background: rgba(14, 26, 43, .6); }
       </div>
 
       <div class="field">
-        <label for="f-assignee">Owner <span class="req" aria-hidden="true">*</span></label>
+        <label for="f-assignee">Assignee <span class="req" aria-hidden="true">*</span></label>
         <input class="control" id="f-assignee" name="assignee" type="text" maxlength="60"
                aria-describedby="e-assignee" autocomplete="off">
         <p class="field-error" id="e-assignee"></p>
@@ -722,14 +665,6 @@ const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/YOUR_EMAIL@example.com";
 
 const STATUSES = ["Backlog", "In Progress", "Blocked", "Done"];
 
-// Empty states point at what to do next rather than stating the obvious.
-const EMPTY_COPY = {
-  "Backlog":     "Nothing queued. Add a task to start one.",
-  "In Progress": "Nothing in flight.",
-  "Blocked":     "Nothing blocked.",
-  "Done":        "Nothing closed yet."
-};
-
 const STATUS_HINTS = {
   "Backlog":     "Logged, not yet scheduled",
   "In Progress": "Actively being worked",
@@ -756,11 +691,6 @@ const CATEGORIES = [
 ];
 
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
-
-// Severity codes: standard IT change-management vernacular. Shown on every
-// card alongside the written priority, so the spine colour is never the only
-// thing carrying severity.
-const PRIORITY_CODE = { Critical: "P1", High: "P2", Medium: "P3", Low: "P4" };
 
 const ID_PREFIX = "UOB-ITPM-";
 const TOAST_MS = 4500;
@@ -878,8 +808,8 @@ function renderCard(task) {
   const priorityKey = task.priority.toLowerCase();
   const overdue = isOverdue(task);
 
-  const overdueFlag = overdue
-    ? '<span class="overdue-flag">Overdue</span>'
+  const overdueBadge = overdue
+    ? '<span class="pill pill-overdue">&#9888; Overdue</span>'
     : "";
 
   const moveOptions = STATUSES.map(function (status) {
@@ -896,43 +826,35 @@ function renderCard(task) {
         '<button type="button" class="btn" data-action="delete-cancel" data-id="' + id + '">No</button>' +
       "</div>"
     : '<div class="card-foot">' +
-        '<label for="move-' + id + '">Move</label>' +
+        '<label for="move-' + id + '">Move &#9656;</label>' +
         '<select class="move-select" id="move-' + id + '" data-action="move" data-id="' + id + '" ' +
           'aria-label="Move task ' + id + ' to another column">' + moveOptions + "</select>" +
       "</div>";
 
   const description = task.description
-    ? '<span class="card-notes">' + escapeHtml(task.description) + "</span>"
+    ? '<span><span class="meta-label">Notes:</span> ' + escapeHtml(task.description) + "</span>"
     : "";
-
-  const code = PRIORITY_CODE[task.priority] || "P4";
 
   return '<article class="card prio-' + escapeHtml(priorityKey) + '" draggable="true" ' +
            'data-id="' + id + '" aria-label="Task ' + id + ': ' + escapeHtml(task.title) + '">' +
-    '<span class="card-spine" aria-hidden="true"></span>' +
-    '<div class="card-body">' +
-      '<div class="card-top">' +
-        '<span class="sev" aria-label="Severity ' + escapeHtml(code) + ', ' +
-          escapeHtml(task.priority) + ' priority">' + escapeHtml(code) + "</span>" +
-        '<span class="task-id">' + id + "</span>" +
-        overdueFlag +
-        '<button type="button" class="icon-btn" data-action="delete-request" data-id="' + id + '" ' +
-          'aria-label="Delete task ' + id + '">&times;</button>' +
-      "</div>" +
-      '<h3 class="card-title">' + escapeHtml(task.title) + "</h3>" +
-      '<div class="card-meta">' +
-        '<span><span class="meta-label">Project</span> ' + escapeHtml(task.project) + "</span>" +
-        '<span><span class="meta-label">Owner</span> ' + escapeHtml(task.assignee) + "</span>" +
-        '<span class="card-due"><span class="meta-label">Due</span> ' +
-          escapeHtml(formatDate(task.dueDate)) + "</span>" +
-        description +
-      "</div>" +
-      '<div class="tag-row">' +
-        '<span class="pill pill-' + escapeHtml(priorityKey) + '">' + escapeHtml(task.priority) + "</span>" +
-        '<span class="pill pill-category">' + escapeHtml(task.category) + "</span>" +
-      "</div>" +
-      footer +
+    '<div class="card-top">' +
+      '<span class="task-id">' + id + "</span>" +
+      overdueBadge +
+      '<button type="button" class="icon-btn" data-action="delete-request" data-id="' + id + '" ' +
+        'aria-label="Delete task ' + id + '">&times;</button>' +
     "</div>" +
+    '<h3 class="card-title">' + escapeHtml(task.title) + "</h3>" +
+    '<div class="card-meta">' +
+      '<span><span class="meta-label">Project:</span> ' + escapeHtml(task.project) + "</span>" +
+      '<span><span class="meta-label">Assignee:</span> ' + escapeHtml(task.assignee) + "</span>" +
+      '<span><span class="meta-label">Due:</span> ' + escapeHtml(formatDate(task.dueDate)) + "</span>" +
+      description +
+    "</div>" +
+    '<div class="tag-row">' +
+      '<span class="pill pill-' + escapeHtml(priorityKey) + '">' + escapeHtml(task.priority) + " priority</span>" +
+      '<span class="pill pill-category">' + escapeHtml(task.category) + "</span>" +
+    "</div>" +
+    footer +
   "</article>";
 }
 
@@ -946,13 +868,13 @@ function renderBoard() {
 
     const cards = inColumn.length
       ? inColumn.map(renderCard).join("")
-      : '<p class="column-empty">' + escapeHtml(EMPTY_COPY[status]) + "</p>";
+      : '<p class="column-empty">No tasks in this column.</p>';
 
     return '<section class="column" data-status="' + escapeHtml(status) + '" ' +
              'aria-label="' + escapeHtml(status) + ' column">' +
       '<div class="column-header">' +
         "<h2>" + escapeHtml(status) + "</h2>" +
-        '<span class="count" aria-label="' + inColumn.length + ' tasks in ' + escapeHtml(status) + '">' +
+        '<span class="count-badge" aria-label="' + inColumn.length + ' tasks in ' + escapeHtml(status) + '">' +
           inColumn.length + "</span>" +
       "</div>" +
       '<p class="visually-hidden">' + escapeHtml(STATUS_HINTS[status]) + "</p>" +
@@ -968,18 +890,15 @@ function renderBoard() {
 function renderSummary(allTasks) {
   const overdue = allTasks.filter(isOverdue).length;
 
-  const items = ['<span class="datum datum-total"><b>' + allTasks.length + "</b> tasks</span>"];
+  const items = ['<span class="summary-item">Total <b>' + allTasks.length + "</b></span>"];
 
   STATUSES.forEach(function (status) {
     const count = allTasks.filter(function (task) { return task.status === status; }).length;
-    const done = status === "Done" ? " datum-done" : "";
-    items.push('<span class="datum' + done + '"><b>' + count + "</b> " +
-               escapeHtml(status.toLowerCase()) + "</span>");
+    items.push('<span class="summary-item">' + escapeHtml(status) + " <b>" + count + "</b></span>");
   });
 
-  // Overdue is the one figure this design raises its voice for.
-  items.push('<span class="datum ' + (overdue ? "datum-alert" : "datum-clear") + '"><b>' +
-             overdue + "</b> overdue</span>");
+  items.push('<span class="summary-item' + (overdue ? " is-overdue" : "") + '">Overdue <b>' +
+             overdue + "</b></span>");
 
   // The summary always reports the whole board, not the filtered view.
   document.getElementById("summary").innerHTML = items.join("");
@@ -1045,7 +964,7 @@ function deleteTask(id) {
   state.tasks.splice(index, 1);
   state.pendingDelete = null;
   renderBoard();
-  showToast("Deleted " + id + ".", "success");
+  showToast("Task " + id + " deleted.", "success");
 }
 
 /* ===========================================================================
@@ -1245,7 +1164,7 @@ function handleSubmit(event) {
 
   // Optimistic UI: the card is on the board before the network call starts.
   const task = addTask(fields);
-  showToast("Added " + task.id + " to " + task.status + ".", "success");
+  showToast("Task " + task.id + " added to " + task.status + ".", "success");
 
   setSubmitting(true);
   notifyNewTask(task)
