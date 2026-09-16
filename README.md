@@ -9,12 +9,12 @@ internal **demo and training tool**.
 > text wordmark and a generic corporate blue palette — no UOB logo, trademark, or branding,
 > and it does not reproduce or connect to any real UOB system. All task data is invented.
 
-![The board on desktop: a dark status bar showing 8 tasks, 3 backlog, 2 in progress, 2 blocked, 1 done and 2 overdue highlighted in red, above four columns of task cards each carrying a P1-P4 severity code and a colour-coded spine](docs/board-desktop.png)
+![The board on desktop: a deep red header, four large KPI figures (8 tasks, 7 open, 2 blocked, 2 overdue on a solid red tile), a "Work by project" bar chart across six workstreams, and four task columns below](docs/board-desktop.png)
 
 <details>
 <summary>On a phone (390px) — columns stack</summary>
 
-![The same board at 390px wide: the status figures wrap into a grid and the four columns stack vertically](docs/board-mobile.png)
+![The same board at 390px wide: KPIs reflow to a 2x2 grid, the project chart rows stack, and the four columns stack vertically](docs/board-mobile.png)
 
 </details>
 
@@ -29,6 +29,11 @@ The live link above serves the same file over HTTPS.
 
 ## What it does
 
+- **KPI strip** — tasks on the board, still open, blocked and overdue, sized to be read at a
+  glance. These always report the whole board, never the filtered view.
+- **Work by project** — a bar per workstream, segmented by status and carrying that project's
+  overdue count. Each row is a button: selecting one filters the board to that project and
+  selecting it again clears the filter, so the chart is navigation rather than decoration.
 - **Four columns** — Backlog, In Progress, Blocked, Done — side by side on desktop, stacked
   below 768px, each with a live count.
 - **Drag and drop** cards between columns using the native HTML5 API, with a drop-target
@@ -46,6 +51,16 @@ The live link above serves the same file over HTTPS.
   summary strip showing totals per status and the overdue count.
 - **Email notification** on new tasks via FormSubmit, sent as a background AJAX call so the
   page never navigates away.
+
+## What the chart does not show
+
+"Work by project" reports **current board state only**, and says so on the chart along with
+the sample size. It is deliberately not a flow dashboard: this board records no
+state-transition history — moving a card just changes `task.status` — so aging WIP, cycle
+time percentiles, throughput, cumulative flow and forecasting cannot be computed from it.
+Showing them would mean inventing the numbers, and a wrong metric is worse than a missing
+one because people act on it. Adding them would mean recording a timestamp on every status
+change, and persisting it.
 
 ## Refreshing resets the board — by design
 
